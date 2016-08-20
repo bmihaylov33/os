@@ -1,42 +1,38 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <pthread.h>
-
-pthread_mutex_t mutex;
-
-int binari = 0;
-
-void* function (void* arg) {
-	int *p = arg;
-	
-	int i = 0;
-	while (i < 10) {
-		if (binari == *p) {
-			printf("Hello, I'm thread: %d \n", *p);
-			pthread_mutex_lock(&mutex);
-			binari++;
-			pthread_mutex_unlock(&mutex);
-			i++;
-			if (binari == 2)
-				binari = 0; 
-		}	
-	}
-}
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 int main() {
-	pthread_mutex_init(&mutex, NULL);
-	int a = 0;
-	int b = 1;
-	int *pa = &a;
-	int *pb = &b;
-	pthread_t thread1;
-	pthread_t thread2;
-	pthread_create(&thread1, NULL, function, pa);
-	pthread_create(&thread2, NULL, function, pb);
-	pthread_join(thread1, NULL);
-	pthread_join(thread2, NULL);
 
-	pthread_mutex_destroy(&mutex);
+int fp1 = open("test.txt", O_RDONLY);
+int fp2 = open("test.txt", O_RDONLY);
+
+const int LENGTH = 256;
+char line[LENGTH];
+int linecount = 0;
+	
+	while (fgets(line, LENGTH, fp1) != NULL) {
+		if (linecount < 10)
+			linecount++;
+		else {
+			fgets(line, LENGTH, fp2);
+		}
+	}
+
+	if (linecount < 10) {
+		printf("less than 10 lines in the file\n");
+	return 1;
+	}
+
+	while (fgets(line, LENGTH, fp2) != NULL) {
+		printf("%s", line);
+	}
+
+	fclose(fp1);
+	fclose(fp2);
 
 	return 0;
 }
